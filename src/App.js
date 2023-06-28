@@ -4,24 +4,24 @@ import { observer } from "mobx-react";
 import { destroy } from "mobx-state-tree";
 import { OtherStore, RootStore } from "./models/RootStore";
 
-// class SDK {
-//   static instances = new Set();
+class SDKWithSet {
+  static instances = new Set();
 
-//   constructor() {
-//     // storing this on a class property never allows the store to be later garbage collected
-//     this.store = RootStore.create({ authors: [], tweets: [] });
-//     SDK.instances.add(this);
-//   }
+  constructor() {
+    // storing this on a class property never allows the store to be later garbage collected
+    this.store = RootStore.create({ authors: [], tweets: [] });
+    SDKWithSet.instances.add(this);
+  }
 
-//   destroy() {
-//     destroy(this.store);
-//     SDK.instances.delete(this);
-//   }
-// }
+  destroy() {
+    destroy(this.store);
+    SDKWithSet.instances.delete(this);
+  }
+}
 
 const instances = new WeakMap();
 
-class SDK {
+class SDKWithWeakMap {
   constructor() {
     // storing this in a WeakMap allows the store to be later garbage collected
     instances.set(this, RootStore.create({ authors: [], tweets: [] }));
@@ -58,7 +58,17 @@ const Tweets = observer(({ sdk }) => {
   );
 });
 
-const App = () => {
+export const SDK_KEYS = {
+  SET: "a",
+  WEAK_MAP: "b"
+}
+const SDKS = {
+  [SDK_KEYS.SET]: SDKWithSet,
+  [SDK_KEYS.WEAK_MAP]: SDKWithWeakMap,
+}
+
+const App = ({sdk}) => {
+  const SDK = SDKS[sdk];
   const otherStore = useMemo(() => OtherStore.create({ authors: [] }), []);
   const [showTweets, setShowTweets] = useState(true);
 
