@@ -15,6 +15,7 @@ class SDKWithSet {
 
   destroy() {
     destroy(this.store);
+    this.store = null;
     SDKWithSet.instances.delete(this);
   }
 }
